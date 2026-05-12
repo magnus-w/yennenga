@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Året i siffror 2025 | Yennenga Progress</title>
+    <meta
+      name="description"
+      content="Nyckeltal, finansiering och kostnadsfördelning för Yennenga Progress 2025."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Manrope:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .charts-section {
+        padding: clamp(1.5rem, 4vw, 3rem) 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(2rem, 5vw, 4rem);
+        margin-top: 2rem;
+      }
+      .chart-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .chart-block h2 {
+        font-family: "Fraunces", serif;
+        font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+        margin: 0 0 0.4rem;
+        text-align: center;
+      }
+      .chart-subtitle {
+        font-size: 0.88rem;
+        color: var(--earth);
+        text-align: center;
+        margin: 0 0 1.2rem;
+      }
+      canvas {
+        max-width: 320px;
+        width: 100%;
+      }
+      .chart-legend {
+        margin-top: 1.1rem;
+        width: 100%;
+        max-width: 320px;
+      }
+      .chart-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.87rem;
+        margin-bottom: 0.35rem;
+      }
+      .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .legend-label { flex: 1; }
+      .legend-pct { font-weight: 700; color: var(--earth-deep); }
+
+      .local-highlight {
+        background: rgba(181, 154, 104, 0.12);
+        border: 1px solid var(--accent);
+        border-radius: 0.5rem;
+        padding: 1.2rem 1.5rem;
+        margin: 1.5rem 0 0;
+        max-width: 320px;
+        width: 100%;
+      }
+      .local-highlight p { margin: 0; font-size: 0.92rem; line-height: 1.5; }
+      .local-highlight strong { font-family: "Fraunces", serif; font-size: 1.5rem; color: var(--earth-deep); display: block; margin-bottom: 0.2rem; }
+
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .kpi-card {
+        background: var(--paper);
+        border: 1px solid rgba(20,17,15,0.1);
+        border-radius: 0.5rem;
+        padding: 1.1rem 1.2rem;
+      }
+      .kpi-card__value {
+        font-family: "Fraunces", serif;
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+        color: var(--earth-deep);
+        line-height: 1;
+        margin: 0 0 0.3rem;
+      }
+      .kpi-card__label {
+        font-size: 0.88rem;
+        margin: 0 0 0.2rem;
+        font-weight: 700;
+      }
+      .kpi-card__note {
+        font-size: 0.82rem;
+        color: rgba(20,17,15,0.6);
+        margin: 0;
+      }
+      .kpi-card__trend {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin: 0.3rem 0 0;
+      }
+      .trend-up { color: #3a7d44; }
+      .trend-neutral { color: var(--earth); }
+
+      @media (max-width: 900px) {
+        .charts-grid { grid-template-columns: 1fr; }
+        .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        .chart-block { align-items: flex-start; }
+        canvas { max-width: 100%; }
+        .chart-legend { max-width: 100%; }
+        .local-highlight { max-width: 100%; }
+      }
+      @media (max-width: 540px) {
+        .kpi-grid { grid-template-columns: 1fr; }
+      }
+      @media print {
+        .subpage-intro {
+          grid-template-columns: 1fr;
+        }
+        .kpi-grid {
+          break-inside: avoid;
+          break-after: avoid;
+        }
+        .charts-section {
+          break-before: page;
+        }
+        .charts-grid {
+          gap: 1.5rem;
+        }
+        .charts-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        canvas {
+          width: 190px !important;
+          height: 190px !important;
+        }
+        .chart-legend {
+          max-width: 190px;
+        }
+        .local-highlight {
+          max-width: 190px;
+        }
+        .chart-block {
+          break-inside: avoid;
+        }
+        .report-table-block {
+          break-before: page;
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body class="report-body">
+    <header class="hero hero--subpage hero--report">
+      <div class="hero__image-wrap" aria-hidden="true">
+        <img
+          src="https://images.squarespace-cdn.com/content/v1/66eae8920e3f405c653981dd/a358b730-2254-47b5-8181-f10b37469c4f/yp_illustration-2a.png"
+          alt=""
+          class="hero__image"
+        />
+      </div>
+      <div class="hero__overlay"></div>
+      <details class="menu">
+        <summary class="menu__toggle" aria-label="Öppna sidmeny">
+          <span></span>
+          <span></span>
+          <span></span>
+        </summary>
+        <nav class="menu__panel" aria-label="Sidlänkar">
+          <a href="../index.html">Start</a>
+          <a href="kapitel-01-skolan.html">Skolan</a>
+          <a href="kapitel-02-farmen.html">Farmen</a>
+          <a href="kapitel-03-kunskap.html">Kunskap</a>
+          <a href="kapitel-04-sverige.html">Sverige</a>
+          <a href="rapport.html">Rapport</a>
+        </nav>
+      </details>
+      <a class="cta" href="https://www.yennengaprogress.se/" target="_blank" rel="noreferrer">Till Yennenga Progress</a>
+      <div class="hero__content">
+        <p class="kicker kicker--lead">Årsberättelse 2025</p>
+        <h1>Året i siffror</h1>
+        <p class="kicker kicker--tail">Finansiering, KPI:er och kostnadsfördelning</p>
+      </div>
+    </header>
+
+    <main class="subpage-main report-main">
+
+      <section class="subpage-intro">
+        <div class="subpage-intro__mini">
+          <p class="subpage-minihead">Så här läser du den här sidan</p>
+        </div>
+        <div class="subpage-intro__summary">
+          <p>
+            Här samlar vi nyckeltal, finansieringsöversikt och kostnadsfördelning för 2025. Siffrorna från
+            Sverige bygger på den reviderade årsredovisningen. Siffrorna från verksamheten i Nakamtenga
+            bygger på Yennenga Progress Burkina Fasos årsrapport 2025.
+          </p>
+        </div>
+      </section>
+
+      <!-- KPI HIGHLIGHTS -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <p class="kpi-card__value">3 364 215 kr</p>
+          <p class="kpi-card__label">Totala intäkter Sverige</p>
+          <p class="kpi-card__note">Gåvor, bidrag och donationer</p>
+          <p class="kpi-card__trend trend-up">↑ +12% vs 2024 (3 008 339 kr)</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__value">2 801 655 kr</p>
+          <p class="kpi-card__label">Kompetens- och varugåvor</p>
+          <p class="kpi-card__note">Ej bokfört i resultaträkningen</p>
+          <p class="kpi-card__trend trend-up">↑ +19% vs 2024 (2 346 310 kr)</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__value">92,9%</p>
+          <p class="kpi-card__label">Ändamålskostnader</p>
+          <p class="kpi-card__note">Andel av totala intäkter</p>
+          <p class="kpi-card__trend trend-up">↑ vs 86,8% år 2024</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__value">335</p>
+          <p class="kpi-card__label">Elever i Yennenga-skolorna</p>
+          <p class="kpi-card__note">Förskola, grundskola och högstadium</p>
+          <p class="kpi-card__trend trend-neutral">85 anställda i Nakamtenga</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__value">57 600</p>
+          <p class="kpi-card__label">Skolmåltider serverade</p>
+          <p class="kpi-card__note">Gratis, dagligen, till alla elever</p>
+          <p class="kpi-card__trend trend-neutral">Råvaror till stor del från egna farmen</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__value">596</p>
+          <p class="kpi-card__label">Deltagare i utbildningar</p>
+          <p class="kpi-card__note">10 tillfällen om demokrati, rätt & hälsa</p>
+          <p class="kpi-card__trend trend-neutral">Varav 235 kvinnor, 361 män</p>
+        </div>
+      </section>
+
+      <!-- CHARTS -->
+      <section class="charts-section">
+        <h2 class="subpage-subhead">Finansiering och kostnadsfördelning</h2>
+        <div class="charts-grid">
+
+          <!-- CHART 1: Varifrån kom pengarna -->
+          <div class="chart-block">
+            <h2>Varifrån kom finansieringen?</h2>
+            <p class="chart-subtitle">Totalt inkl. kompetens-/varugåvor: ca 6 165 870 kr</p>
+            <canvas id="chartIncome" width="320" height="320"></canvas>
+            <div class="chart-legend" id="legendIncome"></div>
+            <div class="local-highlight">
+              <strong>28%</strong>
+              <p>av den lokala budgeten i Nakamtenga finansierades med egna lokala intäkter 2025 – upp från 12% år 2024. Målet är full lokal självförsörjning.</p>
+            </div>
+          </div>
+
+          <!-- CHART 2: Vart gick pengarna -->
+          <div class="chart-block">
+            <h2>Vart gick pengarna?</h2>
+            <p class="chart-subtitle">Ändamålskostnader + admin Sverige: 3 509 242 kr</p>
+            <canvas id="chartCosts" width="320" height="320"></canvas>
+            <div class="chart-legend" id="legendCosts"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- FLERARSTABELL -->
+      <section class="report-table-block">
+        <h2 class="subpage-subhead">Flerårsjämförelse – Sverige</h2>
+        <div class="report-table-wrap">
+          <table>
+            <caption>Nyckeltal 2021–2025 (SEK)</caption>
+            <thead>
+              <tr>
+                <th scope="col">Nyckeltal</th>
+                <th scope="col">2021</th>
+                <th scope="col">2022</th>
+                <th scope="col">2023</th>
+                <th scope="col">2024</th>
+                <th scope="col">2025</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Verksamhetsintäkter</th>
+                <td>2 744 175</td>
+                <td>2 789 132</td>
+                <td>3 255 842</td>
+                <td>3 008 339</td>
+                <td>3 364 215</td>
+              </tr>
+              <tr>
+                <th scope="row">Ändamålskostnader/intäkter</th>
+                <td>97,3%</td>
+                <td>105,6%</td>
+                <td>82,6%</td>
+                <td>86,8%</td>
+                <td>92,9%</td>
+              </tr>
+              <tr>
+                <th scope="row">Adminkostnader/intäkter</th>
+                <td>3,4%</td>
+                <td>4,5%</td>
+                <td>10,7%</td>
+                <td>17%</td>
+                <td>11,4%</td>
+              </tr>
+              <tr>
+                <th scope="row">Resultat efter fin. poster</th>
+                <td>−251 439</td>
+                <td>−282 937</td>
+                <td>+217 079</td>
+                <td>−113 249</td>
+                <td>−145 869</td>
+              </tr>
+              <tr>
+                <th scope="row">Balansomslutning</th>
+                <td>932 734</td>
+                <td>837 130</td>
+                <td>887 958</td>
+                <td>851 217</td>
+                <td>555 169</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ÄNDAMÅLSKOSTNADER TABELL -->
+      <section class="report-table-block" style="border-top:none;">
+        <h2 class="subpage-subhead">Kostnader per område</h2>
+        <div class="report-table-wrap">
+          <table>
+            <caption>Fördelning av kostnader (SEK) inkl. administration</caption>
+            <thead>
+              <tr>
+                <th scope="col">Område</th>
+                <th scope="col">Ingår</th>
+                <th scope="col">2024</th>
+                <th scope="col">2025</th>
+                <th scope="col">Förändring</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Utbildning</th>
+                <td>Skola, bibliotek, IT, ungdomsklubb</td>
+                <td>1 110 576</td>
+                <td>1 203 627</td>
+                <td>+8%</td>
+              </tr>
+              <tr>
+                <th scope="row">Infrastruktur, farm &amp; miljö</th>
+                <td>Entreprenörskap, energi, träd/miljö, övrigt</td>
+                <td>765 403</td>
+                <td>1 073 006</td>
+                <td>+40%</td>
+              </tr>
+              <tr>
+                <th scope="row">Hälsa</th>
+                <td>Klinik, hälsoarbete, förebyggande</td>
+                <td>361 761</td>
+                <td>517 899</td>
+                <td>+43%</td>
+              </tr>
+              <tr>
+                <th scope="row">Admin Sverige</th>
+                <td>Generalsekreterare, redovisning, overhead</td>
+                <td>512 678</td>
+                <td>384 313</td>
+                <td>−25%</td>
+              </tr>
+              <tr>
+                <th scope="row">Admin Burkina Faso</th>
+                <td>Lokal ledning, styrelse, basverksamhet</td>
+                <td>321 291</td>
+                <td>330 397</td>
+                <td>+3%</td>
+              </tr>
+              <tr>
+                <th scope="row"><strong>Totalt</strong></th>
+                <td></td>
+                <td><strong>3 071 709</strong></td>
+                <td><strong>3 509 242</strong></td>
+                <td><strong>+14%</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- NOTER -->
+      <section class="report-columns">
+        <div>
+          <h2 class="subpage-subhead">Om siffrorna</h2>
+          <p>
+            Årsredovisningen är upprättad enligt årsredovisningslagen, BFNAR 2012:1 (K3) och GIVA Sveriges
+            styrande riktlinjer. Revision är utförd av Westerlöv & Partners AB, auktoriserad revisor Simon Westerberg.
+            Redovisning ansvaras av Fanny Björendahl på Deloitte.
+          </p>
+          <p>
+            Kompetens- och varugåvor (2 801 655 kr) redovisas inte i resultaträkningen men är ett viktigt mått
+            på det totala värde som partners och nätverk bidrar med till verksamheten.
+          </p>
+        </div>
+        <div>
+          <h2 class="subpage-subhead">Lokal finansiering i Nakamtenga</h2>
+          <p>
+            Den lokala budgeten i Nakamtenga – som täcker skolverksamhet, hälsovård och
+            infrastruktur – finansierades till 28% av egna lokala intäkter under 2025, mot 12% år 2024.
+            Intäkterna kom från restaurang, boende, skolavgifter, verkstäder, syateljé och
+            växande stöd från lokala myndigheter.
+          </p>
+          <p>
+            Högstadieskolan godkändes under 2024–25 som friskola med statliga elevbidrag i Burkina Faso,
+            vilket inom kort beräknas halvera behovet av utländsk finansiering till den verksamheten.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <p>Yennenga Progress</p>
+      <p>Humlegårdsgatan 20, Stockholm | Nakamtenga, Municipality Ziniaré, Burkina Faso</p>
+      <a href="https://www.yennengaprogress.se/" target="_blank" rel="noreferrer">www.yennengaprogress.se</a>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+      const COLORS = ['#005CD7','#1F4BA2','#BA6740','#D5CEBA','#0a3d8f'];
+
+      function buildLegend(containerId, labels, values, colors) {
+        const total = values.reduce((a,b) => a+b, 0);
+        const el = document.getElementById(containerId);
+        el.innerHTML = labels.map((label, i) => {
+          const pct = ((values[i]/total)*100).toFixed(1);
+          return `<div class="chart-legend-item">
+            <span class="legend-dot" style="background:${colors[i]}"></span>
+            <span class="legend-label">${label}</span>
+            <span class="legend-pct">${pct}%</span>
+          </div>`;
+        }).join('');
+      }
+
+      // CHART 1 – Finansiering
+      // Bokförda intäkter: Privatpersoner 402377, Stiftelser/fonder 2372510, Företag 326278, Skolfadder+periodisering 263050
+      // Kompetens/varugåvor (ej bokfört): 2801655
+      const incomeLabels = [
+        'Stiftelser & fonder',
+        'Kompetens- & varugåvor',
+        'Privatpersoner',
+        'Företag',
+        'Skolfadder & övrigt'
+      ];
+      const incomeValues = [2372510, 2801655, 402377, 326278, 263050];
+      const incomeColors = ['#005CD7', '#1F4BA2', '#BA6740', '#0a3d8f', '#D5CEBA'];
+
+      new Chart(document.getElementById('chartIncome'), {
+        type: 'doughnut',
+        data: {
+          labels: incomeLabels,
+          datasets: [{
+            data: incomeValues,
+            backgroundColor: incomeColors,
+            borderWidth: 2,
+            borderColor: '#f2efe6'
+          }]
+        },
+        options: {
+          cutout: '60%',
+          plugins: { legend: { display: false }, tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                const pct = ((ctx.parsed/total)*100).toFixed(1);
+                return ` ${ctx.label}: ${pct}%`;
+              }
+            }
+          }},
+          animation: { animateRotate: true, duration: 900 }
+        }
+      });
+      buildLegend('legendIncome', incomeLabels, incomeValues, incomeColors);
+
+      // CHART 2 – Kostnader (grupperade)
+      // 1. Utbildning: 1181228 + ungdomsklubb 22399 = 1203627
+      // 2. Hälsa: 517899
+      // 3. Infrastruktur: entreprenörskap 909900 + energi 58218 + träd/miljö 51006 + övrigt 53882 = 1073006
+      // 4. Admin Burkina (basverksamhet): 330397
+      // 5. Admin Sverige: 384313
+      const costLabels = [
+        'Utbildning inkl. ungdomsklubb',
+        'Infrastruktur, farm & miljö',
+        'Hälsa',
+        'Admin Sverige',
+        'Admin Burkina Faso'
+      ];
+      const costValues = [1203627, 1073006, 517899, 384313, 330397];
+      const costColors = [COLORS[0], COLORS[1], COLORS[2], COLORS[3], COLORS[4]];
+
+      new Chart(document.getElementById('chartCosts'), {
+        type: 'doughnut',
+        data: {
+          labels: costLabels,
+          datasets: [{
+            data: costValues,
+            backgroundColor: costColors,
+            borderWidth: 2,
+            borderColor: '#f2efe6'
+          }]
+        },
+        options: {
+          cutout: '60%',
+          plugins: { legend: { display: false }, tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                const pct = ((ctx.parsed/total)*100).toFixed(1);
+                return ` ${ctx.label}: ${pct}%`;
+              }
+            }
+          }},
+          animation: { animateRotate: true, duration: 900 }
+        }
+      });
+      buildLegend('legendCosts', costLabels, costValues, costColors);
+    </script>
+    <script>
+      (function () {
+        var menu = document.querySelector(".menu");
+        if (!menu) return;
+
+        document.addEventListener("click", function (event) {
+          if (!menu.contains(event.target)) {
+            menu.removeAttribute("open");
+          }
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") {
+            menu.removeAttribute("open");
+          }
+        });
+
+        menu.querySelectorAll("a").forEach(function (link) {
+          link.addEventListener("click", function () {
+            menu.removeAttribute("open");
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
